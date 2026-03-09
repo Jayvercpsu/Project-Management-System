@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,15 @@ class ProjectFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = fake()->dateTimeBetween('-10 days', '+10 days');
+        $endDate = fake()->dateTimeBetween($startDate, '+60 days');
+
         return [
-            //
+            'title' => fake()->sentence(4),
+            'description' => fake()->paragraph(),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'created_by' => User::factory()->admin(),
         ];
     }
 }

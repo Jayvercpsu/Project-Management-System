@@ -1,59 +1,160 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Project Management System API (Laravel 12)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend implementation for the Backend Developer Skill Test (Set 1).
 
-## About Laravel
+## Implemented Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Sanctum authentication: register, login, logout, me
+- Role-based access control (`admin`, `manager`, `user`)
+- Project management APIs
+- Task management APIs
+- Comment APIs
+- Custom middleware for API request logging
+- Reusable trait for query scopes (`filterByStatus`, `searchByTitle`)
+- Service class for task assignment validation
+- Queued email notification when task assignment changes
+- Caching for project listing endpoint
+- Database factories and seeders
+- Feature and unit tests
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+
+- Composer
+- MySQL 8+ (configured as default)
 
-## Learning Laravel
+## Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. Install dependencies:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+```
 
-## Laravel Sponsors
+2. Copy environment file:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+cp .env.example .env
+```
 
-### Premium Partners
+On Windows PowerShell:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```powershell
+Copy-Item .env.example .env
+```
 
-## Contributing
+3. Generate app key:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+4. Run migrations and seed data:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan migrate:fresh --seed
+```
 
-## Security Vulnerabilities
+MySQL database (default in `.env.example`):
+- Host: `127.0.0.1`
+- Port: `3306`
+- Database: `project_management_system`
+- Username: `root`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+SMTP email (default in `.env.example`):
+- Mailer: `smtp`
+- Host: `smtp.gmail.com`
+- Port: `587`
+- Scheme: `tls`
 
-## License
+5. Start server:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan serve
+```
+
+## Seeded Data
+
+`php artisan migrate:fresh --seed` creates:
+
+- 3 admins
+- 3 managers
+- 5 users
+- 5 projects
+- 10 tasks
+- 10 comments
+
+Default factory password: `password`
+
+Default seeded login accounts (all use password `password`):
+- Admin: `admin1@pms.test`, `admin2@pms.test`, `admin3@pms.test`
+- Manager: `manager1@pms.test`, `manager2@pms.test`, `manager3@pms.test`
+- User: `user1@pms.test`, `user2@pms.test`, `user3@pms.test`, `user4@pms.test`, `user5@pms.test`
+
+## Authentication
+
+Use Bearer token from `/api/register` or `/api/login`:
+
+```http
+Authorization: Bearer {access_token}
+```
+
+## API Endpoints
+
+### Auth
+
+- `POST /api/register`
+- `POST /api/login`
+- `POST /api/logout`
+- `GET /api/me`
+
+### Projects
+
+- `GET /api/projects`
+- `GET /api/projects/{id}`
+- `POST /api/projects` (admin only)
+- `PUT /api/projects/{id}` (admin only)
+- `DELETE /api/projects/{id}` (admin only)
+
+### Tasks
+
+- `GET /api/projects/{project_id}/tasks`
+- `GET /api/tasks/{id}`
+- `POST /api/projects/{project_id}/tasks` (manager only)
+- `PUT /api/tasks/{id}` (manager or assigned user)
+- `DELETE /api/tasks/{id}` (manager only)
+
+### Comments
+
+- `POST /api/tasks/{task_id}/comments`
+- `GET /api/tasks/{task_id}/comments`
+
+## Testing
+
+Run all tests:
+
+```bash
+php artisan test
+```
+
+## Queue and Mail
+
+Task assignment notifications are dispatched via a queue job (`SendTaskAssignedNotificationJob`) and sent as mail notifications (`TaskAssignedNotification`).
+
+For local async processing, run:
+
+```bash
+php artisan queue:work
+```
+
+## Postman Collection
+
+Import:
+
+- `docs/postman/Project-Management-System.postman_collection.json`
+
+## API Documentation
+
+Detailed endpoint documentation:
+
+- `docs/API_DOCUMENTATION.md`
